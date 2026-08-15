@@ -17,8 +17,8 @@ let appState = {
 // 🔐 YOUR SECURE ADMIN ID & PASSWORD SETTINGS
 // ==========================================
 const ADMIN_CREDENTIALS = {
-    username: "utpalsir",  // आप अपनी मनपसंद ID यहाँ लिख सकते हैं
-    password: "gsjunction@2026" // आप अपना गुप्त पासवर्ड यहाँ बदल सकते हैं
+    username: "LIVESTUDY",  // आप अपनी मनपसंद ID यहाँ लिख सकते हैं
+    password: "ALLAHABAD@9415#9415" // आप अपना गुप्त पासवर्ड यहाँ बदल सकते हैं
 };
 
 document.addEventListener('DOMContentLoaded', () => {
