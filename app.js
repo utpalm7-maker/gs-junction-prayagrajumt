@@ -174,34 +174,35 @@ async function startTest(testId) {
     renderPalette();
 }
 
-/* UNIVERSAL TXT PARSER FOR ALL QUESTION FORMATS */
+/* SUPER SMART UNIVERSAL TXT PARSER (AUTO-SPLIT BY QUESTION NUMBER) */
 function parseTxtQuestions(rawTxt) {
     const questions = [];
-    const blocks = rawTxt.replace(/\r/g, '').split(/\n\s*\n/);
+    
+    // यहregex टेक्स्ट को सीधे "प्रश्न 1" या "1." जैसे नंबरों से काट देगा, चाहे बीच में खाली लाइन हो या न हो!
+    const rawBlocks = rawTxt.split(/(?=(?:प्रश्न\s*\d+\.?|\b\d+\.\s))/i);
 
-    blocks.forEach(block => {
+    rawBlocks.forEach(block => {
         const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if (lines.length < 3) return;
 
         let qText = '';
         let options = [];
-        let correctAns = '';
+        let correctAns = 'A';
         let explanation = 'व्याख्या उपलब्ध नहीं है।';
 
         lines.forEach(line => {
-            if (/^(\*\*\d+\.\*\*|\d+\.|Q\d+\.)/i.test(line)) {
-                qText = line.replace(/^(\*\*\d+\.\*\*|\d+\.|Q\d+\.)/i, '').trim();
+            if (/^(प्रश्न\s*\d+\.?|\d+\.)/i.test(line)) {
+                qText = line.replace(/^(प्रश्न\s*\d+\.?|\d+\.)/i, '').trim();
             } else if (/^\([A-D]\)/i.test(line) || /^[A-D]\./i.test(line)) {
                 options.push(line);
-            } else if (/^(उत्तर|Answer):/i.test(line) || /^\*\*उत्तर:.*?\*\*/.test(line)) {
+            } else if (/^(उत्तर|Answer):/i.test(line)) {
                 const match = line.match(/\([A-D]\)|[A-D]/i);
                 if (match) correctAns = match[0].replace(/[\(\)]/g, '').toUpperCase();
             } else if (/^(व्याख्या|Explanation):/i.test(line)) {
                 explanation = line.replace(/^(व्याख्या|Explanation):/i, '').trim();
             } else {
-                // Multiline question support (Assertion-Reason / Statements)
                 if (options.length === 0 && !/^(उत्तर|Answer|व्याख्या|Explanation):/i.test(line)) {
-                    qText += '<br>' + line;
+                    qText += ' ' + line;
                 }
             }
         });
@@ -210,7 +211,7 @@ function parseTxtQuestions(rawTxt) {
             questions.push({
                 question: qText,
                 options: options,
-                answer: correctAns || 'A',
+                answer: correctAns,
                 explanation: explanation
             });
         }
@@ -410,7 +411,6 @@ function renderAdminTestTable() {
     document.getElementById('adminPublishedCount').textContent = appState.testsIndex.filter(t => t.published).length;
 }
 
-/* HANDLE INSTANT DIRECT PASTE TEST FROM ADMIN PANEL */
 function handleDirectPasteTest(e) {
     e.preventDefault();
     const rawTxt = document.getElementById('adminRawTxtInput').value;
@@ -456,7 +456,7 @@ function handleDirectPasteTest(e) {
 
 function saveBrandingSettings() {
     const newTitle = document.getElementById('brandTitleInput').value;
-    const primaryCol = document.getElementById('primaryColorInput').value;
+    const primaryCol = document.getElementById('primaryColorInput',).value;
     const accentCol = document.getElementById('accentColorInput').value;
 
     document.getElementById('brandTitleText').textContent = newTitle;
@@ -468,7 +468,7 @@ function saveBrandingSettings() {
 
 function getFallbackTxtQuestions() {
     return `
-1. भारतीय संविधान का कौन सा अनुच्छेद संघ की कार्यपालिका शक्ति से संबंधित है?
+प्रश्न 1. भारतीय संविधान का कौन सा अनुच्छेद संघ की कार्यपालिका शक्ति से संबंधित है?
 (A) अनुच्छेद 52
 (B) अनुच्छेद 53
 (C) अनुच्छेद 54
