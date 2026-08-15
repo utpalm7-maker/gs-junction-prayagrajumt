@@ -1,0 +1,41 @@
+[
+  {
+    "id": "tgt-gs-001",
+    "name": "TGT GS Practice Test 1",
+    "exam": "TGT",
+    "category": "GS",
+    "subject": "General Studies",
+    "file": "tests/tgt-gs-001.txt",
+    "questions": 2,
+    "timePerQuestion": 45,
+    "marks": 1,
+    "negativeMarking": 0,
+    "published": true
+  },
+  {
+    "id": "pgt-gs-001",
+    "name": "PGT GS Practice Test 1",
+    "exam": "PGT",
+    "category": "GS",
+    "subject": "General Studies",
+    "file": "tests/pgt-gs-001.txt",
+    "questions": 2,
+    "timePerQuestion": 45,
+    "marks": 1,
+    "negativeMarking": 0,
+    "published": true
+  },
+  {
+    "id": "lt-grade-gs-001",
+    "name": "LT GRADE GS Mastery Test 1",
+    "exam": "LT GRADE",
+    "category": "GS",
+    "subject": "General Studies",
+    "file": "tests/lt-grade-gs-001.txt",
+    "questions": 2,
+    "timePerQuestion": 45,
+    "marks": 1,
+    "negativeMarking": 0.33,
+    "published": true
+  }
+]
