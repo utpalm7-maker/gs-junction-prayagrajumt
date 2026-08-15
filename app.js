@@ -13,6 +13,14 @@ let appState = {
     timeSpent: 0
 };
 
+// ==========================================
+// 🔐 YOUR SECURE ADMIN ID & PASSWORD SETTINGS
+// ==========================================
+const ADMIN_CREDENTIALS = {
+    username: "utpalsir",  // आप अपनी मनपसंद ID यहाँ लिख सकते हैं
+    password: "gsjunction@2026" // आप अपना गुप्त पासवर्ड यहाँ बदल सकते हैं
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     checkStudentRegistration();
     loadLocalCustomTests();
@@ -43,18 +51,14 @@ function handleStudentLogin(e) {
     const dateTime = new Date().toLocaleDateString('hi-IN') + ' ' + new Date().toLocaleTimeString('hi-IN');
 
     const studentObj = { name, mobile, city, dateTime };
-
-    // Save current student
     localStorage.setItem('gs_junction_student_user', JSON.stringify(studentObj));
 
-    // Push to global student list for Admin
     let allStudents = [];
     try {
         const savedList = localStorage.getItem('gs_junction_all_students');
         if (savedList) allStudents = JSON.parse(savedList);
     } catch(err) { allStudents = []; }
 
-    // Check if mobile already exists, update or add new
     const existingIndex = allStudents.findIndex(s => s.mobile === mobile);
     if (existingIndex >= 0) {
         allStudents[existingIndex] = studentObj;
@@ -113,6 +117,51 @@ function renderAdminStudentsTable() {
     document.getElementById('adminTotalStudentsCount').textContent = appState.registeredStudents.length;
 }
 
+/* SECURE ADMIN LOGIN SYSTEM */
+function triggerAdminAccess() {
+    if (appState.role === 'ADMIN') {
+        // If already admin, toggle back to student view
+        logoutAdmin();
+    } else {
+        // Open password prompt modal
+        document.getElementById('adminLoginModal').classList.remove('hidden');
+    }
+}
+
+function closeAdminLoginModal() {
+    document.getElementById('adminLoginModal').classList.add('hidden');
+}
+
+function handleAdminAuth(e) {
+    e.preventDefault();
+    const uInput = document.getElementById('adminUserField').value.trim();
+    const pInput = document.getElementById('adminPassField').value.trim();
+
+    if (uInput === ADMIN_CREDENTIALS.username && pInput === ADMIN_CREDENTIALS.password) {
+        document.getElementById('adminLoginModal').classList.add('hidden');
+        document.getElementById('adminUserField').value = '';
+        document.getElementById('adminPassField').value = '';
+        
+        appState.role = 'ADMIN';
+        document.getElementById('studentInterface').classList.remove('active');
+        document.getElementById('adminInterface').classList.add('active');
+        document.getElementById('userRoleBadge').textContent = 'Admin Mode';
+        document.getElementById('toggleAuthBtn').innerHTML = '<i class="fa-solid fa-graduation-cap"></i> Student View';
+        alert('🔒 एडमिन पैनल में सफलतापूर्वक लॉगिन हो गए हैं!');
+    } else {
+        alert('❌ गलत Admin ID या Password! कृपया पुनः प्रयास करें।');
+    }
+}
+
+function logoutAdmin() {
+    appState.role = 'STUDENT';
+    document.getElementById('adminInterface').classList.remove('active');
+    document.getElementById('studentInterface').classList.add('active');
+    document.getElementById('userRoleBadge').textContent = 'Student';
+    document.getElementById('toggleAuthBtn').innerHTML = '<i class="fa-solid fa-user-gear"></i> Admin Login';
+    switchStudentTab('home');
+}
+
 function loadLocalCustomTests() {
     const saved = localStorage.getItem('gs_junction_custom_tests');
     if (saved) {
@@ -161,22 +210,6 @@ function getFallbackTestIndex() {
         "negativeMarking": 0,
         "published": true
     }];
-}
-
-function toggleAuthRole() {
-    if (appState.role === 'STUDENT') {
-        appState.role = 'ADMIN';
-        document.getElementById('studentInterface').classList.remove('active');
-        document.getElementById('adminInterface').classList.add('active');
-        document.getElementById('userRoleBadge').textContent = 'Admin Mode';
-        document.getElementById('toggleAuthBtn').innerHTML = '<i class="fa-solid fa-graduation-cap"></i> Student View';
-    } else {
-        appState.role = 'STUDENT';
-        document.getElementById('adminInterface').classList.remove('active');
-        document.getElementById('studentInterface').classList.add('active');
-        document.getElementById('userRoleBadge').textContent = 'Student';
-        document.getElementById('toggleAuthBtn').innerHTML = '<i class="fa-solid fa-user-gear"></i> Admin Login';
-    }
 }
 
 function switchStudentTab(tabId) {
@@ -442,8 +475,7 @@ function handleDirectPasteTest(e) {
     renderAdminTestTable();
     renderStudentTests('ALL');
     alert(`🎉 ${parsedQ.length} प्रश्नों वाला टेस्ट लाइव कर दिया गया है!`);
-    toggleAuthRole();
-    switchStudentTab('tests');
+    logoutAdmin();
 }
 
 function handlePdfUpload(e) {
@@ -465,7 +497,7 @@ function handlePdfUpload(e) {
             alert('🎉 PDF सफलतापर्वक अपलोड कर दी गई है!');
             document.getElementById('adminPdfTitle').value = '';
             fileInput.value = '';
-            toggleAuthRole();
+            logoutAdmin();
             switchStudentTab('notes');
         };
         reader.readAsDataURL(fileInput.files[0]);
