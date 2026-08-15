@@ -51,6 +51,11 @@
                 </div>
 
                 <div class="grid-dashboard">
+                    <div class="dash-card" onclick="switchStudentTab('tests')">
+                        <i class="fa-solid fa-list-check card-icon text-success"></i>
+                        <h3>📝 MCQ Test</h3>
+                        <p>विषय एवं परीक्षा वार टेस्ट</p>
+                    </div>
                     <div class="dash-card" onclick="switchStudentTab('notes')">
                         <i class="fa-solid fa-file-pdf card-icon text-warning"></i>
                         <h3>📄 Notes / PDF</h3>
@@ -60,11 +65,6 @@
                         <i class="fa-brands fa-youtube card-icon text-danger"></i>
                         <h3>▶️ YouTube Classes</h3>
                         <p>15.6K+ Subscribed Channel - वीडियो कक्षाएं</p>
-                    </div>
-                    <div class="dash-card" onclick="switchStudentTab('tests')">
-                        <i class="fa-solid fa-list-check card-icon text-success"></i>
-                        <h3>📝 MCQ Test</h3>
-                        <p>विषय एवं परीक्षा वार टेस्ट</p>
                     </div>
                     <div class="dash-card" onclick="switchStudentTab('courses')">
                         <i class="fa-solid fa-graduation-cap card-icon text-primary"></i>
@@ -206,7 +206,7 @@
             <div id="tab-notes" class="tab-content">
                 <div class="section-header" style="margin-bottom: 20px;">
                     <h2>📄 Notes & Study Material (PDF)</h2>
-                    <p class="text-muted">उत्पल सर द्वारा तैयार किए गए विषयवार क्लास नोट्स एवं प्रैक्टिस PDF डाउनलोड करें</p>
+                    <p class="text-muted">उत्पल सर द्वारा तैयार किए गए विषयवार क्लास नोट्स एवं प्रैक्टिस PDF</p>
                 </div>
 
                 <div class="cards-grid">
@@ -218,7 +218,7 @@
                                 <small class="text-muted">TGT / PGT / LT Grade GS</small>
                             </div>
                         </div>
-                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">अनुच्छेद, अनुसूचियाँ, संघ एवं राज्य की कार्यपालिका हेतु उपयोगी सारंश नोट</p>
+                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">अनुच्छेद, अनुसूचियाँ, संघ एवं राज्य की कार्यपालिका हेतु उपयोगी सारंश नोट्स</p>
                         <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
                             <i class="fa-solid fa-download"></i> Download PDF
                         </a>
@@ -233,34 +233,6 @@
                             </div>
                         </div>
                         <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">राज्य की उत्पत्ति, संप्रभुता, स्वतंत्रता एवं अधिकार अवधारणाएं</p>
-                        <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
-                            <i class="fa-solid fa-download"></i> Download PDF
-                        </a>
-                    </div>
-
-                    <div class="test-card">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                            <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
-                            <div>
-                                <h4>संपूर्ण अर्थशास्त्र (3000+ Ques Series)</h4>
-                                <small class="text-muted">Economics Test Series Notes</small>
-                            </div>
-                        </div>
-                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">मांग का नियम, राष्ट्रीय आय, मुद्रास्फीति एवं बजट मुख्य बिंदु</p>
-                        <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
-                            <i class="fa-solid fa-download"></i> Download PDF
-                        </a>
-                    </div>
-
-                    <div class="test-card">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                            <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
-                            <div>
-                                <h4>सम्पूर्ण भूगोल (Geography Special)</h4>
-                                <small class="text-muted">Monday-Wednesday Practice Class</small>
-                            </div>
-                        </div>
-                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">भारत एवं विश्व का भूगोल महत्वपूर्ण मानचित्र एवं तथ्य</p>
                         <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
                             <i class="fa-solid fa-download"></i> Download PDF
                         </a>
@@ -280,6 +252,7 @@
             <div id="tab-profile" class="tab-content"><div class="placeholder-box"><h3>👤 Student Profile</h3><p>छात्र जानकारी।</p></div></div>
         </div>
 
+        <!-- ADMIN INTERFACE WITH DIRECT TXT PASTE SYSTEM -->
         <div id="adminInterface" class="interface-section">
             <div class="admin-wrapper">
                 <aside class="admin-sidebar">
@@ -290,7 +263,7 @@
                     </div>
                     <ul class="admin-menu">
                         <li class="active" onclick="switchAdminTab('dash')"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
-                        <li onclick="switchAdminTab('add-test')"><i class="fa-solid fa-plus-circle"></i> Add Test</li>
+                        <li onclick="switchAdminTab('add-test')"><i class="fa-solid fa-plus-circle"></i> Instant Upload Test</li>
                         <li onclick="switchAdminTab('manage-tests')"><i class="fa-solid fa-tasks"></i> Manage Tests</li>
                         <li onclick="switchAdminTab('branding')"><i class="fa-solid fa-palette"></i> Branding & Theme</li>
                     </ul>
@@ -305,12 +278,14 @@
                         </div>
                     </div>
 
+                    <!-- DIRECT TXT PASTE FORM -->
                     <div id="admin-tab-add-test" class="admin-tab">
-                        <h2>➕ Create / Add New Test</h2>
-                        <form id="createTestForm" onsubmit="handleCreateTest(event)">
+                        <h2>➕ Instant Add / Paste Test Data</h2>
+                        <p class="text-muted" style="margin-bottom: 15px;">किसी भी विषय के कितने भी प्रश्नों का पूरा TXT मैटर सीधे नीचे बॉक्स में पेस्ट करें (MCQ, कथन, मिलान, Assertion-Reason सभी प्रकार के प्रश्न समर्थित हैं)!</p>
+                        <form id="createTestForm" onsubmit="handleDirectPasteTest(event)">
                             <div class="form-grid">
-                                <div class="form-group"><label>Test ID</label><input type="text" id="adminTestId" placeholder="tgt-gs-002" required></div>
-                                <div class="form-group"><label>Test Title</label><input type="text" id="adminTestName" placeholder="TGT GS Test 2" required></div>
+                                <div class="form-group"><label>Test Unique ID</label><input type="text" id="adminTestId" placeholder="pol-sci-90q-test" required></div>
+                                <div class="form-group"><label>Test Title / नाम</label><input type="text" id="adminTestName" placeholder="राजनीतिक विज्ञान — 90 प्रश्नों का समग्र टेस्ट" required></div>
                                 <div class="form-group">
                                     <label>Exam Category</label>
                                     <select id="adminExamCat" required>
@@ -323,14 +298,23 @@
                                         <option value="MPSC">MPSC</option>
                                         <option value="RPSC">RPSC</option>
                                         <option value="JPSC">JPSC</option>
+                                        <option value="UGC NET">UGC NET</option>
                                     </select>
                                 </div>
-                                <div class="form-group"><label>Subject</label><input type="text" id="adminSubject" value="General Studies" required></div>
-                                <div class="form-group"><label>Time Per Question (Sec)</label><input type="number" id="adminTimePerQ" value="45" required></div>
+                                <div class="form-group"><label>Subject / विषय</label><input type="text" id="adminSubject" value="Political Science / नागरिकशास्त्र" required></div>
+                                <div class="form-group"><label>Time Per Question (Seconds)</label><input type="number" id="adminTimePerQ" value="45" required></div>
                                 <div class="form-group"><label>Marks Per Question</label><input type="number" id="adminMarks" value="1" required></div>
-                                <div class="form-group"><label>TXT File Path</label><input type="text" id="adminFilePath" placeholder="tests/tgt-gs-002.txt" required></div>
+                                <div class="form-group"><label>Negative Marking (e.g. 0.25)</label><input type="number" step="0.01" id="adminNegMarks" value="0.25" required></div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Publish Test</button>
+
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label style="font-weight: bold; color: #c53030;">📋 Paste Entire TXT Question Data Here (सभी प्रश्न यहाँ पेस्ट करें):</label>
+                                <textarea id="adminRawTxtInput" rows="12" style="width: 100%; padding: 10px; font-family: monospace; border: 2px dashed #3182ce; border-radius: 6px;" placeholder="1. राजनीति विज्ञान के व्यवहारवादी उपागम का प्रमुख जोर किस पर था?&#10;(A) संस्थाओं के औपचारिक अध्ययन पर&#10;(B) राजनीतिक व्यवहार के वैज्ञानिक अध्ययन पर&#10;(C) केवल संविधान के अध्ययन पर&#10;(D) राजनीतिक दर्शन के अध्ययन पर&#10;उत्तर: (B)&#10;व्याख्या: व्यवहारवाद ने..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success" style="margin-top: 15px; font-weight: bold; width: 100%; padding: 12px;">
+                                🚀 Publish & Save Test Now
+                            </button>
                         </form>
                     </div>
 
