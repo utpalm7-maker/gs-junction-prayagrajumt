@@ -1,6 +1,7 @@
 let appState = {
     role: 'STUDENT',
     testsIndex: [],
+    customTestsData: {},
     currentTest: null,
     currentQuestions: [],
     userAnswers: {},
@@ -11,8 +12,18 @@ let appState = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadLocalCustomTests();
     loadTestIndex();
 });
+
+function loadLocalCustomTests() {
+    const saved = localStorage.getItem('gs_junction_custom_tests');
+    if (saved) {
+        try {
+            appState.customTestsData = JSON.parse(saved);
+        } catch(e) { appState.customTestsData = {}; }
+    }
+}
 
 async function loadTestIndex() {
     try {
@@ -25,6 +36,14 @@ async function loadTestIndex() {
     } catch (err) {
         appState.testsIndex = getFallbackTestIndex();
     }
+
+    Object.keys(appState.customTestsData).forEach(testId => {
+        const customItem = appState.customTestsData[testId];
+        if (!appState.testsIndex.some(t => t.id === testId)) {
+            appState.testsIndex.unshift(customItem.meta);
+        }
+    });
+
     renderStudentTests('ALL');
     renderAdminTestTable();
 }
@@ -79,7 +98,7 @@ function switchStudentTab(tabId) {
 
 function filterTests(category) {
     document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
-    event.target.classList.add('active');
+    if (event && event.target) event.target.classList.add('active');
     renderStudentTests(category);
 }
 
@@ -110,7 +129,7 @@ function renderStudentTests(category) {
                 </div>
                 <h4>${test.name}</h4>
                 <p style="font-size: 0.85rem; color: #4a5568; margin: 8px 0;">
-                    प्रश्न: ${test.questions} | समय: ${Math.round(test.questions * test.timePerQuestion / 60)} मिनट
+                    प्रश्न: ${test.questions || 'विस्तृत'} | समय: ${Math.round((test.questions || 30) * (test.timePerQuestion || 45) / 60)} मिनट
                 </p>
             </div>
             <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="startTest('${test.id}')">
@@ -135,12 +154,16 @@ async function startTest(testId) {
     document.getElementById('currentTestTitle').textContent = testMeta.name;
     document.getElementById('currentTestMeta').textContent = `${testMeta.exam} | ${testMeta.subject}`;
 
-    try {
-        const res = await fetch(testMeta.file);
-        const rawText = res.ok ? await res.text() : getFallbackTxtQuestions();
-        appState.currentQuestions = parseTxtQuestions(rawText);
-    } catch (e) {
-        appState.currentQuestions = parseTxtQuestions(getFallbackTxtQuestions());
+    if (appState.customTestsData[testId]) {
+        appState.currentQuestions = parseTxtQuestions(appState.customTestsData[testId].rawTxt);
+    } else {
+        try {
+            const res = await fetch(testMeta.file);
+            const rawText = res.ok ? await res.text() : getFallbackTxtQuestions();
+            appState.currentQuestions = parseTxtQuestions(rawText);
+        } catch (e) {
+            appState.currentQuestions = parseTxtQuestions(getFallbackTxtQuestions());
+        }
     }
 
     appState.timeRemaining = appState.currentQuestions.length * (testMeta.timePerQuestion || 45);
@@ -151,13 +174,14 @@ async function startTest(testId) {
     renderPalette();
 }
 
+/* UNIVERSAL TXT PARSER FOR ALL QUESTION FORMATS */
 function parseTxtQuestions(rawTxt) {
     const questions = [];
     const blocks = rawTxt.replace(/\r/g, '').split(/\n\s*\n/);
 
     blocks.forEach(block => {
         const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (lines.length < 4) return;
+        if (lines.length < 3) return;
 
         let qText = '';
         let options = [];
@@ -165,15 +189,20 @@ function parseTxtQuestions(rawTxt) {
         let explanation = 'व्याख्या उपलब्ध नहीं है।';
 
         lines.forEach(line => {
-            if (/^(\*\*\d+\.\*\*|\d+\.)/.test(line)) {
-                qText = line.replace(/^(\*\*\d+\.\*\*|\d+\.)/, '').trim();
-            } else if (/^\([A-D]\)/.test(line)) {
+            if (/^(\*\*\d+\.\*\*|\d+\.|Q\d+\.)/i.test(line)) {
+                qText = line.replace(/^(\*\*\d+\.\*\*|\d+\.|Q\d+\.)/i, '').trim();
+            } else if (/^\([A-D]\)/i.test(line) || /^[A-D]\./i.test(line)) {
                 options.push(line);
             } else if (/^(उत्तर|Answer):/i.test(line) || /^\*\*उत्तर:.*?\*\*/.test(line)) {
                 const match = line.match(/\([A-D]\)|[A-D]/i);
                 if (match) correctAns = match[0].replace(/[\(\)]/g, '').toUpperCase();
             } else if (/^(व्याख्या|Explanation):/i.test(line)) {
                 explanation = line.replace(/^(व्याख्या|Explanation):/i, '').trim();
+            } else {
+                // Multiline question support (Assertion-Reason / Statements)
+                if (options.length === 0 && !/^(उत्तर|Answer|व्याख्या|Explanation):/i.test(line)) {
+                    qText += '<br>' + line;
+                }
             }
         });
 
@@ -196,7 +225,7 @@ function renderQuestion(index) {
     
     document.getElementById('qCurrentIndex').textContent = index + 1;
     document.getElementById('qTotalCount').textContent = appState.currentQuestions.length;
-    document.getElementById('qTextDisplay').textContent = `${index + 1}. ${q.question}`;
+    document.getElementById('qTextDisplay').innerHTML = `${index + 1}. ${q.question}`;
 
     const optsContainer = document.getElementById('optionsContainer');
     optsContainer.innerHTML = '';
@@ -357,7 +386,7 @@ function switchAdminTab(adminTabId) {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
 
     document.getElementById(`admin-tab-${adminTabId}`).classList.add('active');
-    event.target.classList.add('active');
+    if (event && event.target) event.target.classList.add('active');
 }
 
 function renderAdminTestTable() {
@@ -381,27 +410,48 @@ function renderAdminTestTable() {
     document.getElementById('adminPublishedCount').textContent = appState.testsIndex.filter(t => t.published).length;
 }
 
-function handleCreateTest(e) {
+/* HANDLE INSTANT DIRECT PASTE TEST FROM ADMIN PANEL */
+function handleDirectPasteTest(e) {
     e.preventDefault();
-    const newTest = {
-        id: document.getElementById('adminTestId').value,
+    const rawTxt = document.getElementById('adminRawTxtInput').value;
+    const parsedQ = parseTxtQuestions(rawTxt);
+
+    if (parsedQ.length === 0) {
+        return alert('कृपया टेक्स्ट का फॉर्मेट चेक करें। कोई प्रश्न नहीं पहचाना जा सका।');
+    }
+
+    const testId = document.getElementById('adminTestId').value.trim();
+    const newTestMeta = {
+        id: testId,
         name: document.getElementById('adminTestName').value,
         exam: document.getElementById('adminExamCat').value,
         category: "GS",
         subject: document.getElementById('adminSubject').value,
-        file: document.getElementById('adminFilePath').value,
-        questions: 10,
+        file: `custom/${testId}`,
+        questions: parsedQ.length,
         timePerQuestion: parseInt(document.getElementById('adminTimePerQ').value),
         marks: parseFloat(document.getElementById('adminMarks').value),
-        negativeMarking: 0,
+        negativeMarking: parseFloat(document.getElementById('adminNegMarks').value),
         published: true
     };
 
-    appState.testsIndex.push(newTest);
+    appState.customTestsData[testId] = {
+        meta: newTestMeta,
+        rawTxt: rawTxt
+    };
+
+    localStorage.setItem('gs_junction_custom_tests', JSON.stringify(appState.customTestsData));
+
+    if (!appState.testsIndex.some(t => t.id === testId)) {
+        appState.testsIndex.unshift(newTestMeta);
+    }
+
     renderAdminTestTable();
     renderStudentTests('ALL');
-    alert('नया टेस्ट सफलतापूर्वक जोड़ दिया गया है!');
-    switchAdminTab('manage-tests');
+    alert(`🎉 बधाई हो सर! ${parsedQ.length} प्रश्नों वाला नया टेस्ट तुरंत लाइव कर दिया गया है!`);
+    
+    toggleAuthRole();
+    switchStudentTab('tests');
 }
 
 function saveBrandingSettings() {
