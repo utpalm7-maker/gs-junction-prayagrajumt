@@ -2,6 +2,7 @@ let appState = {
     role: 'STUDENT',
     testsIndex: [],
     customTestsData: {},
+    customPdfsData: [],
     currentTest: null,
     currentQuestions: [],
     userAnswers: {},
@@ -13,26 +14,30 @@ let appState = {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadLocalCustomTests();
+    loadLocalCustomPdfs();
     loadTestIndex();
+    renderStudentPdfs();
 });
 
 function loadLocalCustomTests() {
     const saved = localStorage.getItem('gs_junction_custom_tests');
     if (saved) {
-        try {
-            appState.customTestsData = JSON.parse(saved);
-        } catch(e) { appState.customTestsData = {}; }
+        try { appState.customTestsData = JSON.parse(saved); } catch(e) { appState.customTestsData = {}; }
+    }
+}
+
+function loadLocalCustomPdfs() {
+    const saved = localStorage.getItem('gs_junction_custom_pdfs');
+    if (saved) {
+        try { appState.customPdfsData = JSON.parse(saved); } catch(e) { appState.customPdfsData = []; }
     }
 }
 
 async function loadTestIndex() {
     try {
         const response = await fetch('tests/index.json');
-        if (response.ok) {
-            appState.testsIndex = await response.json();
-        } else {
-            appState.testsIndex = getFallbackTestIndex();
-        }
+        if (response.ok) { appState.testsIndex = await response.json(); }
+        else { appState.testsIndex = getFallbackTestIndex(); }
     } catch (err) {
         appState.testsIndex = getFallbackTestIndex();
     }
@@ -49,21 +54,19 @@ async function loadTestIndex() {
 }
 
 function getFallbackTestIndex() {
-    return [
-        {
-            "id": "tgt-gs-001",
-            "name": "TGT GS Isolated Practice Test 1",
-            "exam": "TGT",
-            "category": "GS",
-            "subject": "General Studies",
-            "file": "tests/tgt-gs-001.txt",
-            "questions": 2,
-            "timePerQuestion": 45,
-            "marks": 1,
-            "negativeMarking": 0,
-            "published": true
-        }
-    ];
+    return [{
+        "id": "tgt-gs-001",
+        "name": "TGT GS Isolated Practice Test 1",
+        "exam": "TGT",
+        "category": "GS",
+        "subject": "General Studies",
+        "file": "tests/tgt-gs-001.txt",
+        "questions": 2,
+        "timePerQuestion": 45,
+        "marks": 1,
+        "negativeMarking": 0,
+        "published": true
+    }];
 }
 
 function toggleAuthRole() {
@@ -118,26 +121,57 @@ function renderStudentTests(category) {
 
     filtered.forEach(test => {
         if (!test.published && appState.role !== 'ADMIN') return;
-        
         const card = document.createElement('div');
         card.className = 'test-card';
         card.innerHTML = `
             <div>
-                <div class="test-card-header">
-                    <span class="badge">${test.exam}</span>
-                    <small class="text-muted">${test.subject}</small>
-                </div>
+                <div class="test-card-header"><span class="badge">${test.exam}</span><small class="text-muted">${test.subject}</small></div>
                 <h4>${test.name}</h4>
-                <p style="font-size: 0.85rem; color: #4a5568; margin: 8px 0;">
-                    प्रश्न: ${test.questions || 'विस्तृत'} | समय: ${Math.round((test.questions || 30) * (test.timePerQuestion || 45) / 60)} मिनट
-                </p>
+                <p style="font-size: 0.85rem; color: #4a5568; margin: 8px 0;">प्रश्न: ${test.questions || 'विस्तृत'}</p>
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="startTest('${test.id}')">
-                <i class="fa-solid fa-play"></i> Start Test
-            </button>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="startTest('${test.id}')"><i class="fa-solid fa-play"></i> Start Test</button>
         `;
         container.appendChild(card);
     });
+}
+
+/* SMART UNIVERSAL TXT PARSER */
+function parseTxtQuestions(rawTxt) {
+    const questions = [];
+    const rawBlocks = rawTxt.split(/(?=(?:प्रश्न\s*\d+\.?|\b\d+\.\s))/i);
+
+    rawBlocks.forEach(block => {
+        const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length < 3) return;
+
+        let qText = '';
+        let options = [];
+        let correctAns = 'A';
+        let explanation = 'व्याख्या उपलब्ध नहीं है।';
+
+        lines.forEach(line => {
+            if (/^(प्रश्न\s*\d+\.?|\d+\.)/i.test(line)) {
+                qText = line.replace(/^(प्रश्न\s*\d+\.?|\d+\.)/i, '').trim();
+            } else if (/^\([A-D]\)/i.test(line) || /^[A-D]\./i.test(line)) {
+                options.push(line);
+            } else if (/^(उत्तर|Answer):/i.test(line)) {
+                const match = line.match(/\([A-D]\)|[A-D]/i);
+                if (match) correctAns = match[0].replace(/[\(\)]/g, '').toUpperCase();
+            } else if (/^(व्याख्या|Explanation):/i.test(line)) {
+                explanation = line.replace(/^(व्याख्या|Explanation):/i, '').trim();
+            } else {
+                if (options.length === 0 && !/^(उत्तर|Answer|व्याख्या|Explanation):/i.test(line)) {
+                    qText += ' ' + line;
+                }
+            }
+        });
+
+        if (qText && options.length >= 2) {
+            questions.push({ question: qText, options: options, answer: correctAns, explanation: explanation });
+        }
+    });
+
+    return questions.length > 0 ? questions : getMockParsedQuestions();
 }
 
 async function startTest(testId) {
@@ -169,61 +203,13 @@ async function startTest(testId) {
     appState.timeRemaining = appState.currentQuestions.length * (testMeta.timePerQuestion || 45);
     appState.timeSpent = 0;
     startTimer();
-
     renderQuestion(0);
     renderPalette();
-}
-
-/* SUPER SMART UNIVERSAL TXT PARSER (AUTO-SPLIT BY QUESTION NUMBER) */
-function parseTxtQuestions(rawTxt) {
-    const questions = [];
-    
-    // यहregex टेक्स्ट को सीधे "प्रश्न 1" या "1." जैसे नंबरों से काट देगा, चाहे बीच में खाली लाइन हो या न हो!
-    const rawBlocks = rawTxt.split(/(?=(?:प्रश्न\s*\d+\.?|\b\d+\.\s))/i);
-
-    rawBlocks.forEach(block => {
-        const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (lines.length < 3) return;
-
-        let qText = '';
-        let options = [];
-        let correctAns = 'A';
-        let explanation = 'व्याख्या उपलब्ध नहीं है।';
-
-        lines.forEach(line => {
-            if (/^(प्रश्न\s*\d+\.?|\d+\.)/i.test(line)) {
-                qText = line.replace(/^(प्रश्न\s*\d+\.?|\d+\.)/i, '').trim();
-            } else if (/^\([A-D]\)/i.test(line) || /^[A-D]\./i.test(line)) {
-                options.push(line);
-            } else if (/^(उत्तर|Answer):/i.test(line)) {
-                const match = line.match(/\([A-D]\)|[A-D]/i);
-                if (match) correctAns = match[0].replace(/[\(\)]/g, '').toUpperCase();
-            } else if (/^(व्याख्या|Explanation):/i.test(line)) {
-                explanation = line.replace(/^(व्याख्या|Explanation):/i, '').trim();
-            } else {
-                if (options.length === 0 && !/^(उत्तर|Answer|व्याख्या|Explanation):/i.test(line)) {
-                    qText += ' ' + line;
-                }
-            }
-        });
-
-        if (qText && options.length >= 2) {
-            questions.push({
-                question: qText,
-                options: options,
-                answer: correctAns,
-                explanation: explanation
-            });
-        }
-    });
-
-    return questions.length > 0 ? questions : getMockParsedQuestions();
 }
 
 function renderQuestion(index) {
     appState.currentQIndex = index;
     const q = appState.currentQuestions[index];
-    
     document.getElementById('qCurrentIndex').textContent = index + 1;
     document.getElementById('qTotalCount').textContent = appState.currentQuestions.length;
     document.getElementById('qTextDisplay').innerHTML = `${index + 1}. ${q.question}`;
@@ -234,47 +220,28 @@ function renderQuestion(index) {
     q.options.forEach((optText, optIdx) => {
         const optLetter = String.fromCharCode(65 + optIdx);
         const isChecked = appState.userAnswers[index] === optLetter;
-
         const optDiv = document.createElement('label');
         optDiv.className = 'option-item';
-        optDiv.innerHTML = `
-            <input type="radio" name="mcqOption" value="${optLetter}" ${isChecked ? 'checked' : ''} onchange="selectOption('${optLetter}')">
-            <span>${optText}</span>
-        `;
+        optDiv.innerHTML = `<input type="radio" name="mcqOption" value="${optLetter}" ${isChecked ? 'checked' : ''} onchange="selectOption('${optLetter}')"><span>${optText}</span>`;
         optsContainer.appendChild(optDiv);
     });
-
     updatePaletteHighlight();
 }
 
-function selectOption(letter) {
-    appState.userAnswers[appState.currentQIndex] = letter;
-    updatePaletteHighlight();
-}
-
-function clearCurrentAnswer() {
-    delete appState.userAnswers[appState.currentQIndex];
-    renderQuestion(appState.currentQIndex);
-}
-
-function navigateQuestion(direction) {
-    const nextIdx = appState.currentQIndex + direction;
-    if (nextIdx >= 0 && nextIdx < appState.currentQuestions.length) {
-        renderQuestion(nextIdx);
-    }
-}
+function selectOption(letter) { appState.userAnswers[appState.currentQIndex] = letter; updatePaletteHighlight(); }
+function clearCurrentAnswer() { delete appState.userAnswers[appState.currentQIndex]; renderQuestion(appState.currentQIndex); }
+function navigateQuestion(dir) { const next = appState.currentQIndex + dir; if (next >= 0 && next < appState.currentQuestions.length) renderQuestion(next); }
 
 function renderPalette() {
     const grid = document.getElementById('paletteGrid');
     grid.innerHTML = '';
-
     appState.currentQuestions.forEach((_, idx) => {
-        const numBtn = document.createElement('div');
-        numBtn.className = 'p-num';
-        numBtn.id = `palette-btn-${idx}`;
-        numBtn.textContent = idx + 1;
-        numBtn.onclick = () => renderQuestion(idx);
-        grid.appendChild(numBtn);
+        const btn = document.createElement('div');
+        btn.className = 'p-num';
+        btn.id = `palette-btn-${idx}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => renderQuestion(idx);
+        grid.appendChild(btn);
     });
     updatePaletteHighlight();
 }
@@ -283,15 +250,10 @@ function updatePaletteHighlight() {
     appState.currentQuestions.forEach((_, idx) => {
         const btn = document.getElementById(`palette-btn-${idx}`);
         if (!btn) return;
-
         btn.className = 'p-num';
-        if (idx === appState.currentQIndex) {
-            btn.classList.add('current');
-        } else if (appState.userAnswers[idx]) {
-            btn.classList.add('answered');
-        } else {
-            btn.classList.add('unanswered');
-        }
+        if (idx === appState.currentQIndex) btn.classList.add('current');
+        else if (appState.userAnswers[idx]) btn.classList.add('answered');
+        else btn.classList.add('unanswered');
     });
 }
 
@@ -300,93 +262,53 @@ function startTimer() {
     appState.timerInterval = setInterval(() => {
         appState.timeRemaining--;
         appState.timeSpent++;
-
-        const hrs = Math.floor(appState.timeRemaining / 3600);
-        const mins = Math.floor((appState.timeRemaining % 3600) / 60);
-        const secs = appState.timeRemaining % 60;
-
-        document.getElementById('timerDisplay').textContent = 
-            `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-
-        if (appState.timeRemaining <= 0) {
-            clearInterval(appState.timerInterval);
-            alert('समय समाप्त हो गया है! टेस्ट ऑटो-सबमिट किया जा रहा है।');
-            calculateAndShowResult();
-        }
+        const m = Math.floor(appState.timeRemaining / 60);
+        const s = appState.timeRemaining % 60;
+        document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        if (appState.timeRemaining <= 0) { clearInterval(appState.timerInterval); calculateAndShowResult(); }
     }, 1000);
 }
 
-function confirmSubmitTest() {
-    if (confirm('क्या आप सुनिश्चित हैं कि आप टेस्ट जमा (Submit) करना चाहते हैं?')) {
-        clearInterval(appState.timerInterval);
-        calculateAndShowResult();
-    }
-}
+function confirmSubmitTest() { if (confirm('टेस्ट सबमिट करें?')) { clearInterval(appState.timerInterval); calculateAndShowResult(); } }
 
 function calculateAndShowResult() {
     document.getElementById('activeTestEngine').classList.add('hidden');
     document.getElementById('testResultView').classList.remove('hidden');
-
-    let correct = 0;
-    let wrong = 0;
-    let attempted = 0;
-
+    let correct = 0, wrong = 0, attempted = 0;
     appState.currentQuestions.forEach((q, idx) => {
-        const userAns = appState.userAnswers[idx];
-        if (userAns) {
+        if (appState.userAnswers[idx]) {
             attempted++;
-            if (userAns === q.answer) correct++;
-            else wrong++;
+            if (appState.userAnswers[idx] === q.answer) correct++; else wrong++;
         }
     });
-
-    const marksPerQ = appState.currentTest.marks || 1;
-    const negMarking = appState.currentTest.negativeMarking || 0;
-    const totalScore = (correct * marksPerQ) - (wrong * negMarking);
-    const accuracy = attempted > 0 ? ((correct / attempted) * 100).toFixed(1) : 0;
-
+    const score = (correct * (appState.currentTest.marks || 1)) - (wrong * (appState.currentTest.negativeMarking || 0));
     document.getElementById('resTestName').textContent = appState.currentTest.name;
-    document.getElementById('resScore').textContent = totalScore.toFixed(2);
-    document.getElementById('resAccuracy').textContent = `${accuracy}%`;
+    document.getElementById('resScore').textContent = score.toFixed(2);
+    document.getElementById('resAccuracy').textContent = attempted > 0 ? ((correct/attempted)*100).toFixed(1)+'%' : '0%';
     document.getElementById('resAttempted').textContent = attempted;
     document.getElementById('resCorrect').textContent = correct;
     document.getElementById('resWrong').textContent = wrong;
-    
-    const minsSpent = Math.floor(appState.timeSpent / 60);
-    const secsSpent = appState.timeSpent % 60;
-    document.getElementById('resTimeTaken').textContent = `${minsSpent}m ${secsSpent}s`;
-
     renderExplanations();
 }
 
 function renderExplanations() {
     const container = document.getElementById('explanationsContainer');
     container.innerHTML = '';
-
     appState.currentQuestions.forEach((q, idx) => {
-        const userAns = appState.userAnswers[idx] || 'Not Attempted';
-        const isCorrect = userAns === q.answer;
-
-        const expBox = document.createElement('div');
-        expBox.style.cssText = 'padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 12px; background: #fafafa;';
-        expBox.innerHTML = `
-            <p><strong>Q${idx + 1}: ${q.question}</strong></p>
-            <p style="margin: 5px 0;">आपका उत्तर: <span class="${isCorrect ? 'text-success' : 'text-danger'}">${userAns}</span> | सही उत्तर: <strong class="text-success">${q.answer}</strong></p>
-            <p style="font-size: 0.9rem; color: #4a5568;">💡 <strong>व्याख्या:</strong> ${q.explanation}</p>
-        `;
-        container.appendChild(expBox);
+        const uAns = appState.userAnswers[idx] || 'Not Attempted';
+        const box = document.createElement('div');
+        box.style.cssText = 'padding: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; background: #fafafa; border-radius: 6px;';
+        box.innerHTML = `<p><strong>Q${idx+1}: ${q.question}</strong></p><p>आपका उत्तर: ${uAns} | सही: <strong class="text-success">${q.answer}</strong></p><p>💡 ${q.explanation}</p>`;
+        container.appendChild(box);
     });
 }
 
-function toggleDetailedExplanations() {
-    document.getElementById('explanationsSection').classList.toggle('hidden');
-}
+function toggleDetailedExplanations() { document.getElementById('explanationsSection').classList.toggle('hidden'); }
 
-function switchAdminTab(adminTabId) {
+function switchAdminTab(tabId) {
     document.querySelectorAll('.admin-menu li').forEach(li => li.classList.remove('active'));
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-
-    document.getElementById(`admin-tab-${adminTabId}`).classList.add('active');
+    document.getElementById(`admin-tab-${tabId}`).classList.add('active');
     if (event && event.target) event.target.classList.add('active');
 }
 
@@ -394,34 +316,20 @@ function renderAdminTestTable() {
     const tbody = document.getElementById('adminTestTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
-
     appState.testsIndex.forEach(t => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${t.id}</td>
-            <td>${t.name}</td>
-            <td>${t.exam}</td>
-            <td>${t.subject}</td>
-            <td><span class="badge">${t.published ? 'Published' : 'Draft'}</span></td>
-        `;
-        tbody.appendChild(tr);
+        tbody.innerHTML += `<tr><td>${t.id}</td><td>${t.name}</td><td>${t.exam}</td><td>Published</td></tr>`;
     });
-
     document.getElementById('adminTotalTestsCount').textContent = appState.testsIndex.length;
-    document.getElementById('adminPublishedCount').textContent = appState.testsIndex.filter(t => t.published).length;
+    document.getElementById('adminTotalPdfsCount').textContent = appState.customPdfsData.length;
 }
 
 function handleDirectPasteTest(e) {
     e.preventDefault();
     const rawTxt = document.getElementById('adminRawTxtInput').value;
     const parsedQ = parseTxtQuestions(rawTxt);
-
-    if (parsedQ.length === 0) {
-        return alert('कृपया टेक्स्ट का फॉर्मेट चेक करें। कोई प्रश्न नहीं पहचाना जा सका।');
-    }
-
+    if (parsedQ.length === 0) return alert('कोई प्रश्न नहीं मिला।');
     const testId = document.getElementById('adminTestId').value.trim();
-    const newTestMeta = {
+    const meta = {
         id: testId,
         name: document.getElementById('adminTestName').value,
         exam: document.getElementById('adminExamCat').value,
@@ -434,57 +342,98 @@ function handleDirectPasteTest(e) {
         negativeMarking: parseFloat(document.getElementById('adminNegMarks').value),
         published: true
     };
-
-    appState.customTestsData[testId] = {
-        meta: newTestMeta,
-        rawTxt: rawTxt
-    };
-
+    appState.customTestsData[testId] = { meta, rawTxt };
     localStorage.setItem('gs_junction_custom_tests', JSON.stringify(appState.customTestsData));
-
-    if (!appState.testsIndex.some(t => t.id === testId)) {
-        appState.testsIndex.unshift(newTestMeta);
-    }
-
+    if (!appState.testsIndex.some(t => t.id === testId)) appState.testsIndex.unshift(meta);
     renderAdminTestTable();
     renderStudentTests('ALL');
-    alert(`🎉 बधाई हो सर! ${parsedQ.length} प्रश्नों वाला नया टेस्ट तुरंत लाइव कर दिया गया है!`);
-    
+    alert(`🎉 ${parsedQ.length} प्रश्नों वाला टेस्ट लाइव कर दिया गया है!`);
     toggleAuthRole();
     switchStudentTab('tests');
 }
 
+/* DIRECT PDF UPLOADER & SECURE VIEWER LOGIC */
+function handlePdfUpload(e) {
+    e.preventDefault();
+    const title = document.getElementById('adminPdfTitle').value;
+    const fileInput = document.getElementById('adminPdfFilePicker');
+    
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const base64Data = event.target.result;
+            const pdfItem = { title: title, dataUrl: base64Data };
+            
+            appState.customPdfsData.unshift(pdfItem);
+            localStorage.setItem('gs_junction_custom_pdfs', JSON.stringify(appState.customPdfsData));
+            
+            renderStudentPdfs();
+            renderAdminTestTable();
+            alert('🎉 PDF सफलतापर्वक अपलोड कर दी गई है!');
+            document.getElementById('adminPdfTitle').value = '';
+            fileInput.value = '';
+            toggleAuthRole();
+            switchStudentTab('notes');
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+}
+
+function renderStudentPdfs() {
+    const container = document.getElementById('pdfCardsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (appState.customPdfsData.length === 0) {
+        container.innerHTML = `<p class="text-muted">अभी कोई PDF उपलब्ध नहीं है। (एडमिन पैनल से अपलोड करें)</p>`;
+        return;
+    }
+
+    appState.customPdfsData.forEach((pdf, index) => {
+        const card = document.createElement('div');
+        card.className = 'test-card';
+        card.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
+                <div>
+                    <h4>${pdf.title}</h4>
+                    <small class="text-muted">ऑनलाइन अध्ययन सामग्री</small>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="openSecurePdf(${index})">
+                <i class="fa-solid fa-book-open"></i> View & Read (पढ़ें)
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function openSecurePdf(index) {
+    const pdf = appState.customPdfsData[index];
+    if (!pdf) return;
+    
+    document.getElementById('viewingPdfTitle').textContent = pdf.title;
+    document.getElementById('pdfFrame').src = pdf.dataUrl;
+    document.getElementById('pdfViewerModal').classList.remove('hidden');
+    window.scrollTo({ top: document.getElementById('pdfViewerModal').offsetTop, behavior: 'smooth' });
+}
+
+function closePdfViewer() {
+    document.getElementById('pdfViewerModal').classList.add('hidden');
+    document.getElementById('pdfFrame').src = '';
+}
+
 function saveBrandingSettings() {
     const newTitle = document.getElementById('brandTitleInput').value;
-    const primaryCol = document.getElementById('primaryColorInput',).value;
-    const accentCol = document.getElementById('accentColorInput').value;
-
+    const primaryCol = document.getElementById('primaryColorInput').value;
     document.getElementById('brandTitleText').textContent = newTitle;
     document.documentElement.style.setProperty('--primary-color', primaryCol);
-    document.documentElement.style.setProperty('--accent-color', accentCol);
-
-    alert('ब्रांडिंग थीम को सफलतापूर्वक अपडेट कर दिया गया है!');
+    alert('ब्रांडिंग सेव हो गई है!');
 }
 
 function getFallbackTxtQuestions() {
-    return `
-प्रश्न 1. भारतीय संविधान का कौन सा अनुच्छेद संघ की कार्यपालिका शक्ति से संबंधित है?
-(A) अनुच्छेद 52
-(B) अनुच्छेद 53
-(C) अनुच्छेद 54
-(D) अनुच्छेद 55
-उत्तर: (B)
-व्याख्या: भारतीय संविधान का अनुच्छेद 53 यह प्रावधान करता है कि संघ की कार्यपालिका शक्ति राष्ट्रपति में निहित होगी।
-    `;
+    return `प्रश्न 1. भारतीय संविधान का अनुच्छेद 53 किससे संबंधित है?\n(A) राष्ट्रपति\n(B) प्रधानमंत्री\n(C) संसद\n(D) राज्यपाल\nउत्तर: (A)\nव्याख्या: संघ की कार्यपालिका शक्ति राष्ट्रपति में निहित होती है।`;
 }
-
 function getMockParsedQuestions() {
-    return [
-        {
-            question: "भारतीय संविधान का कौन सा अनुच्छेद संघ की कार्यपालिका शक्ति से संबंधित है?",
-            options: ["(A) अनुच्छेद 52", "(B) अनुच्छेद 53", "(C) अनुच्छेद 54", "(D) अनुच्छेद 55"],
-            answer: "B",
-            explanation: "भारतीय संविधान का अनुच्छेद 53 यह प्रावधान करता है कि संघ की कार्यपालिका शक्ति राष्ट्रपति में निहित होगी।"
-        }
-    ];
+    return [{ question: "भारतीय संविधान का अनुच्छेद 53 किससे संबंधित है?", options: ["(A) राष्ट्रपति", "(B) प्रधानमंत्री", "(C) संसद", "(D) राज्यपाल"], answer: "A", explanation: "संघ की कार्यपालिका शक्ति राष्ट्रपति में निहित होती है।" }];
 }
