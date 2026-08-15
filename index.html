@@ -36,8 +36,9 @@
             <nav class="nav-tabs">
                 <button class="tab-btn active" onclick="switchStudentTab('home')"><i class="fa-solid fa-house"></i> Home</button>
                 <button class="tab-btn" onclick="switchStudentTab('tests')"><i class="fa-solid fa-pen-to-square"></i> Tests</button>
+                <button class="tab-btn" onclick="switchStudentTab('youtube')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube Classes</button>
                 <button class="tab-btn" onclick="switchStudentTab('courses')"><i class="fa-solid fa-book-open"></i> Courses</button>
-                <button class="tab-btn" onclick="switchStudentTab('live')"><i class="fa-solid fa-video"></i> Live Classes</button>
+                <button class="tab-btn" onclick="switchStudentTab('live')"><i class="fa-solid fa-video"></i> Live Schedule</button>
                 <button class="tab-btn" onclick="switchStudentTab('notes')"><i class="fa-solid fa-file-pdf"></i> Notes / PDF</button>
                 <button class="tab-btn" onclick="switchStudentTab('results')"><i class="fa-solid fa-trophy"></i> Results</button>
                 <button class="tab-btn" onclick="switchStudentTab('profile')"><i class="fa-solid fa-user"></i> Profile</button>
@@ -50,20 +51,25 @@
                 </div>
 
                 <div class="grid-dashboard">
-                    <div class="dash-card" onclick="switchStudentTab('live')">
-                        <i class="fa-solid fa-tower-broadcast card-icon text-danger"></i>
-                        <h3>🎥 Live Classes</h3>
-                        <p>लाइव एवं आगामी कक्षाएं</p>
+                    <div class="dash-card" onclick="switchStudentTab('youtube')">
+                        <i class="fa-brands fa-youtube card-icon text-danger"></i>
+                        <h3>▶️ YouTube Classes</h3>
+                        <p>15.6K+ Subscribed Channel - वीडियो कक्षाएं</p>
+                    </div>
+                    <div class="dash-card" onclick="switchStudentTab('tests')">
+                        <i class="fa-solid fa-list-check card-icon text-success"></i>
+                        <h3>📝 MCQ Test</h3>
+                        <p>विषय एवं परीक्षा वार टेस्ट</p>
                     </div>
                     <div class="dash-card" onclick="switchStudentTab('courses')">
                         <i class="fa-solid fa-graduation-cap card-icon text-primary"></i>
                         <h3>📚 Courses</h3>
                         <p>संपूर्ण कोर्स एवं सामग्री</p>
                     </div>
-                    <div class="dash-card" onclick="switchStudentTab('tests')">
-                        <i class="fa-solid fa-list-check card-icon text-success"></i>
-                        <h3>📝 MCQ Test</h3>
-                        <p>विषय एवं परीक्षा वार टेस्ट</p>
+                    <div class="dash-card" onclick="switchStudentTab('live')">
+                        <i class="fa-solid fa-tower-broadcast card-icon text-danger"></i>
+                        <h3>🎥 Live Schedule</h3>
+                        <p>लाइव क्लास का समय व नया बैच</p>
                     </div>
                     <div class="dash-card" onclick="switchStudentTab('notes')">
                         <i class="fa-solid fa-file-lines card-icon text-warning"></i>
@@ -74,11 +80,6 @@
                         <i class="fa-solid fa-chart-line card-icon text-info"></i>
                         <h3>🏆 Test Result</h3>
                         <p>अपना प्रदर्शन एवं विश्लेषण देखें</p>
-                    </div>
-                    <div class="dash-card" onclick="switchStudentTab('youtube')">
-                        <i class="fa-brands fa-youtube card-icon text-danger"></i>
-                        <h3>▶️ YouTube Classes</h3>
-                        <p>निःशुल्क वीडियो कक्षाएं</p>
                     </div>
                 </div>
             </div>
@@ -173,12 +174,23 @@
 
             <!-- YouTube & Live Classes Tab -->
             <div id="tab-youtube" class="tab-content">
-                <div class="welcome-banner" style="background: linear-gradient(135deg, #cc0000, #ff0000); text-align: center;">
-                    <h2>▶️ LIVE STUDY ALLAHABAD - Video Classes</h2>
-                    <p>राजनीतिक सिद्धांत, संविधान एवं सम्पूर्ण भूगोल की नियमित लाइव प्रैक्टिस क्लास</p>
-                    <a href="https://www.youtube.com/@LIVESTUDYALLAHABAD" target="_blank" class="btn btn-outline" style="margin-top: 15px; display: inline-block;">
-                        <i class="fa-brands fa-youtube"></i> Visit Official YouTube Channel
+                <div class="welcome-banner" style="background: linear-gradient(135deg, #cc0000, #990000); text-align: center; margin-bottom: 20px;">
+                    <h2>▶️ Live Study Allahabad</h2>
+                    <p>उत्पल सर द्वारा संचालित - 15.6K+ Subscribers | 2.3K+ Videos</p>
+                    <p style="font-size: 0.9rem; margin-top: 5px;">राजनीतिक सिद्धांत, भारतीय संविधान, एवं संपूर्ण भूगोल प्रैक्टिस क्लास</p>
+                    <a href="https://www.youtube.com/@livestudyallahabad3875" target="_blank" rel="noopener noreferrer" class="btn btn-warning" style="margin-top: 15px; display: inline-block; font-weight: bold;">
+                        <i class="fa-brands fa-youtube"></i> Visit @livestudyallahabad3875
                     </a>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="test-card">
+                        <h4>🎥 In-App Practice Classes & Live Stream</h4>
+                        <p class="text-muted" style="margin: 5px 0 12px 0; font-size: 0.85rem;">ऐप के अंदर ही सीधे चैनल के वीडियो एवं लाइव सेशन देखें</p>
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
+                            <iframe src="https://www.youtube.com/embed?listType=playlist&list=UU_S258g-0a8117961226993" style="position: absolute; top:0; left:0; width:100%; height:100%; border:0;" allowfullscreen></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -186,8 +198,8 @@
             <div id="tab-live" class="tab-content">
                 <div class="placeholder-box">
                     <h3>🎥 Live Practice Class Schedule</h3>
-                    <p><strong>समय:</strong> रात 09:15 PM से (सोमवार से शनिवार)</p>
-                    <p><strong>नया बैच:</strong> सुबह 11:00 AM से दोपहर 01:00 PM तक</p>
+                    <p><strong>प्रैक्टिस क्लास समय:</strong> रात 09:15 PM से (सोमवार से शनिवार)</p>
+                    <p><strong>नया बैच समय:</strong> सुबह 11:00 AM से दोपहर 01:00 PM तक</p>
                 </div>
             </div>
             <div id="tab-notes" class="tab-content"><div class="placeholder-box"><h3>📄 Notes & Study Material</h3><p>PDF नोट्स डाउनलोड करने के लिए उपलब्ध हैं।</p></div></div>
