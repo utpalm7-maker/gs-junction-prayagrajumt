@@ -37,9 +37,9 @@
                 <button class="tab-btn active" onclick="switchStudentTab('home')"><i class="fa-solid fa-house"></i> Home</button>
                 <button class="tab-btn" onclick="switchStudentTab('tests')"><i class="fa-solid fa-pen-to-square"></i> Tests</button>
                 <button class="tab-btn" onclick="switchStudentTab('youtube')"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> YouTube Classes</button>
+                <button class="tab-btn" onclick="switchStudentTab('notes')"><i class="fa-solid fa-file-pdf"></i> Notes / PDF</button>
                 <button class="tab-btn" onclick="switchStudentTab('courses')"><i class="fa-solid fa-book-open"></i> Courses</button>
                 <button class="tab-btn" onclick="switchStudentTab('live')"><i class="fa-solid fa-video"></i> Live Schedule</button>
-                <button class="tab-btn" onclick="switchStudentTab('notes')"><i class="fa-solid fa-file-pdf"></i> Notes / PDF</button>
                 <button class="tab-btn" onclick="switchStudentTab('results')"><i class="fa-solid fa-trophy"></i> Results</button>
                 <button class="tab-btn" onclick="switchStudentTab('profile')"><i class="fa-solid fa-user"></i> Profile</button>
             </nav>
@@ -51,6 +51,11 @@
                 </div>
 
                 <div class="grid-dashboard">
+                    <div class="dash-card" onclick="switchStudentTab('notes')">
+                        <i class="fa-solid fa-file-pdf card-icon text-warning"></i>
+                        <h3>📄 Notes / PDF</h3>
+                        <p>महत्वपूर्ण नोट्स एवं अध्ययन सामग्री</p>
+                    </div>
                     <div class="dash-card" onclick="switchStudentTab('youtube')">
                         <i class="fa-brands fa-youtube card-icon text-danger"></i>
                         <h3>▶️ YouTube Classes</h3>
@@ -70,11 +75,6 @@
                         <i class="fa-solid fa-tower-broadcast card-icon text-danger"></i>
                         <h3>🎥 Live Schedule</h3>
                         <p>लाइव क्लास का समय व नया बैच</p>
-                    </div>
-                    <div class="dash-card" onclick="switchStudentTab('notes')">
-                        <i class="fa-solid fa-file-lines card-icon text-warning"></i>
-                        <h3>📄 Notes / PDF</h3>
-                        <p>महत्वपूर्ण नोट्स एवं अध्ययन सामग्री</p>
                     </div>
                     <div class="dash-card" onclick="switchStudentTab('results')">
                         <i class="fa-solid fa-chart-line card-icon text-info"></i>
@@ -184,7 +184,6 @@
                 </div>
 
                 <div class="cards-grid">
-                    <!-- Embedded Playlist 1: Political Science Practice Series -->
                     <div class="test-card">
                         <h4>🏛️ Political Science TGT / PGT / UGC NET Series</h4>
                         <p class="text-muted" style="margin: 5px 0 12px 0; font-size: 0.85rem;">राजनीति विज्ञान, संविधान व शासन (प्रैक्टिस प्लेलिस्ट)</p>
@@ -193,13 +192,78 @@
                         </div>
                     </div>
 
-                    <!-- Embedded Playlist 2: Economics Practice Class -->
                     <div class="test-card">
                         <h4>📊 Economics Practice Class Series</h4>
                         <p class="text-muted" style="margin: 5px 0 12px 0; font-size: 0.85rem;">अर्थशास्त्र प्रश्नोत्तरी एवं विस्तृत हल (प्लेलिस्ट)</p>
                         <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
                             <iframe src="https://www.youtube.com/embed/videoseries?list=PLgVAM9MeUEZImweX5u_pKb1xFibiNzx3w" style="position: absolute; top:0; left:0; width:100%; height:100%; border:0;" allowfullscreen></iframe>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes & PDF Tab -->
+            <div id="tab-notes" class="tab-content">
+                <div class="section-header" style="margin-bottom: 20px;">
+                    <h2>📄 Notes & Study Material (PDF)</h2>
+                    <p class="text-muted">उत्पल सर द्वारा तैयार किए गए विषयवार क्लास नोट्स एवं प्रैक्टिस PDF डाउनलोड करें</p>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="test-card">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
+                            <div>
+                                <h4>भारतीय संविधान, राजव्यवस्था एवं शासन</h4>
+                                <small class="text-muted">TGT / PGT / LT Grade GS</small>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">अनुच्छेद, अनुसूचियाँ, संघ एवं राज्य की कार्यपालिका हेतु उपयोगी सारंश नोट</p>
+                        <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
+                            <i class="fa-solid fa-download"></i> Download PDF
+                        </a>
+                    </div>
+
+                    <div class="test-card">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
+                            <div>
+                                <h4>राजनीतिक सिद्धांत (Political Theory)</h4>
+                                <small class="text-muted">Political Elite Batch Special</small>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">राज्य की उत्पत्ति, संप्रभुता, स्वतंत्रता एवं अधिकार अवधारणाएं</p>
+                        <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
+                            <i class="fa-solid fa-download"></i> Download PDF
+                        </a>
+                    </div>
+
+                    <div class="test-card">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
+                            <div>
+                                <h4>संपूर्ण अर्थशास्त्र (3000+ Ques Series)</h4>
+                                <small class="text-muted">Economics Test Series Notes</small>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">मांग का नियम, राष्ट्रीय आय, मुद्रास्फीति एवं बजट मुख्य बिंदु</p>
+                        <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
+                            <i class="fa-solid fa-download"></i> Download PDF
+                        </a>
+                    </div>
+
+                    <div class="test-card">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                            <i class="fa-solid fa-file-pdf text-danger" style="font-size: 2rem;"></i>
+                            <div>
+                                <h4>सम्पूर्ण भूगोल (Geography Special)</h4>
+                                <small class="text-muted">Monday-Wednesday Practice Class</small>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #4a5568; margin-bottom: 15px;">भारत एवं विश्व का भूगोल महत्वपूर्ण मानचित्र एवं तथ्य</p>
+                        <a href="https://drive.google.com" target="_blank" class="btn btn-primary" style="text-align: center; display: block; text-decoration: none;">
+                            <i class="fa-solid fa-download"></i> Download PDF
+                        </a>
                     </div>
                 </div>
             </div>
@@ -212,7 +276,6 @@
                     <p><strong>नया बैच समय:</strong> सुबह 11:00 AM से दोपहर 01:00 PM तक</p>
                 </div>
             </div>
-            <div id="tab-notes" class="tab-content"><div class="placeholder-box"><h3>📄 Notes & Study Material</h3><p>PDF नोट्स डाउनलोड करने के लिए उपलब्ध हैं।</p></div></div>
             <div id="tab-results" class="tab-content"><div class="placeholder-box"><h3>🏆 Previous Test History</h3><p>पुराने टेस्ट रिजल्ट यहाँ दिखेंगे।</p></div></div>
             <div id="tab-profile" class="tab-content"><div class="placeholder-box"><h3>👤 Student Profile</h3><p>छात्र जानकारी।</p></div></div>
         </div>
