@@ -3,6 +3,7 @@ let appState = {
     testsIndex: [],
     customTestsData: {},
     customPdfsData: [],
+    registeredStudents: [],
     currentTest: null,
     currentQuestions: [],
     userAnswers: {},
@@ -13,11 +14,104 @@ let appState = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    checkStudentRegistration();
     loadLocalCustomTests();
     loadLocalCustomPdfs();
+    loadRegisteredStudents();
     loadTestIndex();
     renderStudentPdfs();
 });
+
+/* STUDENT REGISTRATION & LOGIN CHECK */
+function checkStudentRegistration() {
+    const studentInfo = localStorage.getItem('gs_junction_student_user');
+    if (!studentInfo) {
+        document.getElementById('studentLoginModal').classList.remove('hidden');
+    } else {
+        try {
+            const student = JSON.parse(studentInfo);
+            displayStudentProfile(student);
+        } catch(e) {}
+    }
+}
+
+function handleStudentLogin(e) {
+    e.preventDefault();
+    const name = document.getElementById('regStudentName').value.trim();
+    const mobile = document.getElementById('regStudentMobile').value.trim();
+    const city = document.getElementById('regStudentCity').value.trim();
+    const dateTime = new Date().toLocaleDateString('hi-IN') + ' ' + new Date().toLocaleTimeString('hi-IN');
+
+    const studentObj = { name, mobile, city, dateTime };
+
+    // Save current student
+    localStorage.setItem('gs_junction_student_user', JSON.stringify(studentObj));
+
+    // Push to global student list for Admin
+    let allStudents = [];
+    try {
+        const savedList = localStorage.getItem('gs_junction_all_students');
+        if (savedList) allStudents = JSON.parse(savedList);
+    } catch(err) { allStudents = []; }
+
+    // Check if mobile already exists, update or add new
+    const existingIndex = allStudents.findIndex(s => s.mobile === mobile);
+    if (existingIndex >= 0) {
+        allStudents[existingIndex] = studentObj;
+    } else {
+        allStudents.unshift(studentObj);
+    }
+
+    localStorage.setItem('gs_junction_all_students', JSON.stringify(allStudents));
+
+    document.getElementById('studentLoginModal').classList.add('hidden');
+    displayStudentProfile(studentObj);
+    renderAdminStudentsTable();
+    alert(`🎉 स्वागत है ${name} जी! आपकी जानकारी दर्ज कर ली गई है।`);
+}
+
+function displayStudentProfile(student) {
+    const pName = document.getElementById('profileDisplayName');
+    const pMob = document.getElementById('profileDisplayMobile');
+    const pCity = document.getElementById('profileDisplayCity');
+    if (pName) pName.textContent = student.name;
+    if (pMob) pMob.textContent = student.mobile;
+    if (pCity) pCity.textContent = student.city;
+}
+
+function loadRegisteredStudents() {
+    try {
+        const saved = localStorage.getItem('gs_junction_all_students');
+        if (saved) appState.registeredStudents = JSON.parse(saved);
+    } catch(e) { appState.registeredStudents = []; }
+    renderAdminStudentsTable();
+}
+
+function renderAdminStudentsTable() {
+    const tbody = document.getElementById('adminStudentsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (appState.registeredStudents.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #666;">अभी तक कोई छात्र रजिस्टर नहीं हुआ है।</td></tr>`;
+        document.getElementById('adminTotalStudentsCount').textContent = 0;
+        return;
+    }
+
+    appState.registeredStudents.forEach((st, idx) => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td><strong>${st.name}</strong></td>
+                <td>${st.mobile}</td>
+                <td>${st.city}</td>
+                <td><small style="color: #666;">${st.dateTime || 'नया'}</small></td>
+            </tr>
+        `;
+    });
+
+    document.getElementById('adminTotalStudentsCount').textContent = appState.registeredStudents.length;
+}
 
 function loadLocalCustomTests() {
     const saved = localStorage.getItem('gs_junction_custom_tests');
@@ -135,7 +229,6 @@ function renderStudentTests(category) {
     });
 }
 
-/* SMART UNIVERSAL TXT PARSER */
 function parseTxtQuestions(rawTxt) {
     const questions = [];
     const rawBlocks = rawTxt.split(/(?=(?:प्रश्न\s*\d+\.?|\b\d+\.\s))/i);
@@ -321,6 +414,7 @@ function renderAdminTestTable() {
     });
     document.getElementById('adminTotalTestsCount').textContent = appState.testsIndex.length;
     document.getElementById('adminTotalPdfsCount').textContent = appState.customPdfsData.length;
+    renderAdminStudentsTable();
 }
 
 function handleDirectPasteTest(e) {
@@ -352,7 +446,6 @@ function handleDirectPasteTest(e) {
     switchStudentTab('tests');
 }
 
-/* DIRECT PDF UPLOADER & SECURE VIEWER LOGIC */
 function handlePdfUpload(e) {
     e.preventDefault();
     const title = document.getElementById('adminPdfTitle').value;
@@ -411,7 +504,6 @@ function renderStudentPdfs() {
 function openSecurePdf(index) {
     const pdf = appState.customPdfsData[index];
     if (!pdf) return;
-    
     document.getElementById('viewingPdfTitle').textContent = pdf.title;
     document.getElementById('pdfFrame').src = pdf.dataUrl;
     document.getElementById('pdfViewerModal').classList.remove('hidden');
