@@ -36,9 +36,9 @@ function getFallbackTestIndex() {
             "name": "TGT GS Isolated Practice Test 1",
             "exam": "TGT",
             "category": "GS",
-            "subject": "General Studies (TGT Specific)",
+            "subject": "General Studies",
             "file": "tests/tgt-gs-001.txt",
-            "questions": 5,
+            "questions": 2,
             "timePerQuestion": 45,
             "marks": 1,
             "negativeMarking": 0,
@@ -67,8 +67,8 @@ function switchStudentTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
-    document.getElementById('activeTestEngine').classList.add('hidden');
-    document.getElementById('testResultView').classList.add('hidden');
+    document.getElementById('activeTestEngine')?.classList.add('hidden');
+    document.getElementById('testResultView')?.classList.add('hidden');
 
     const targetContent = document.getElementById(`tab-${tabId}`);
     if (targetContent) targetContent.classList.add('active');
