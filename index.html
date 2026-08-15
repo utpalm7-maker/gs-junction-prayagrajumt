@@ -37,6 +37,31 @@
         </div>
     </div>
 
+    <!-- ADMIN LOGIN MODAL (SECURE ID & PASSWORD) -->
+    <div id="adminLoginModal" class="modal-overlay hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div style="background: #fff; padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; box-shadow: 0 4px 25px rgba(0,0,0,0.4);">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-user-shield" style="font-size: 3rem; color: #c53030;"></i>
+                <h2 style="color: #1a365d; margin-top: 10px;">Admin Secure Login</h2>
+                <p style="color: #666; font-size: 0.9rem;">केवल उत्पल सर (Admin) के लिए सुरक्षित</p>
+            </div>
+            <form onsubmit="handleAdminAuth(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Admin ID / Username</label>
+                    <input type="text" id="adminUserField" placeholder="Admin ID दर्ज करें" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Password / गुप्त पासवर्ड</label>
+                    <input type="password" id="adminPassField" placeholder="Password दर्ज करें" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-outline" style="width: 50%;" onclick="closeAdminLoginModal()">रद्द करें</button>
+                    <button type="submit" class="btn btn-success" style="width: 50%; font-weight: bold;">लॉगिन करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <header class="app-header" id="appHeader">
         <div class="header-container">
             <div class="brand-info">
@@ -50,7 +75,7 @@
             </div>
             <div class="auth-controls">
                 <span id="userRoleBadge" class="role-badge">Student</span>
-                <button id="toggleAuthBtn" class="btn btn-outline" onclick="toggleAuthRole()">
+                <button id="toggleAuthBtn" class="btn btn-outline" onclick="triggerAdminAccess()">
                     <i class="fa-solid fa-user-gear"></i> Admin Login
                 </button>
             </div>
@@ -230,7 +255,7 @@
             </div>
         </div>
 
-        <!-- ADMIN INTERFACE WITH STUDENT USERS TRACKING -->
+        <!-- ADMIN INTERFACE -->
         <div id="adminInterface" class="interface-section">
             <div class="admin-wrapper">
                 <aside class="admin-sidebar">
@@ -246,6 +271,7 @@
                         <li onclick="switchAdminTab('add-pdf')"><i class="fa-solid fa-file-arrow-up"></i> Instant Upload PDF</li>
                         <li onclick="switchAdminTab('manage-tests')"><i class="fa-solid fa-tasks"></i> Manage Tests</li>
                         <li onclick="switchAdminTab('branding')"><i class="fa-solid fa-palette"></i> Branding & Theme</li>
+                        <li onclick="logoutAdmin()" style="color: #fc8181; margin-top: 20px;"><i class="fa-solid fa-right-from-bracket"></i> Logout Admin</li>
                     </ul>
                 </aside>
 
@@ -259,7 +285,6 @@
                         </div>
                     </div>
 
-                    <!-- REGISTERED STUDENTS LIST TAB -->
                     <div id="admin-tab-students-list" class="admin-tab">
                         <h2>👥 Registered Student Users (छात्र सूची)</h2>
                         <p class="text-muted">यहाँ उन सभी छात्रों की सूची है जिन्होंने ऐप में लॉगिन किया है:</p>
