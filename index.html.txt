@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS JUNCTION PRAYAGRAJ - Powered by LIVE STUDY ALLAHABAD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a365d">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="app-header" id="appHeader">
+        <div class="header-container">
+            <div class="brand-info">
+                <div class="logo-wrapper" id="headerLogo">
+                    <i class="fa-solid fa-graduation-cap brand-icon"></i>
+                </div>
+                <div>
+                    <h1 class="brand-title" id="brandTitleText">GS JUNCTION PRAYAGRAJ</h1>
+                    <p class="brand-subtext">PCS | UPSSSC | TGT | PGT | LT GRADE | UGC NET | TET | CTET</p>
+                </div>
+            </div>
+            <div class="auth-controls">
+                <span id="userRoleBadge" class="role-badge">Student</span>
+                <button id="toggleAuthBtn" class="btn btn-outline" onclick="toggleAuthRole()">
+                    <i class="fa-solid fa-user-gear"></i> Admin Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container" id="mainContainer">
+        <div id="studentInterface" class="interface-section active">
+            <nav class="nav-tabs">
+                <button class="tab-btn active" onclick="switchStudentTab('home')"><i class="fa-solid fa-house"></i> Home</button>
+                <button class="tab-btn" onclick="switchStudentTab('tests')"><i class="fa-solid fa-pen-to-square"></i> Tests</button>
+                <button class="tab-btn" onclick="switchStudentTab('courses')"><i class="fa-solid fa-book-open"></i> Courses</button>
+                <button class="tab-btn" onclick="switchStudentTab('live')"><i class="fa-solid fa-video"></i> Live Classes</button>
+                <button class="tab-btn" onclick="switchStudentTab('notes')"><i class="fa-solid fa-file-pdf"></i> Notes / PDF</button>
+                <button class="tab-btn" onclick="switchStudentTab('results')"><i class="fa-solid fa-trophy"></i> Results</button>
+                <button class="tab-btn" onclick="switchStudentTab('profile')"><i class="fa-solid fa-user"></i> Profile</button>
+            </nav>
+
+            <div id="tab-home" class="tab-content active">
+                <div class="welcome-banner">
+                    <h2>स्वागत है, GS JUNCTION PRAYAGRAJ में!</h2>
+                    <p id="brandTaglineText">सभी प्रतियोगी परीक्षाओं हेतु गुणवत्तापूर्ण अध्ययन एवं टेस्ट प्लेटफॉर्म</p>
+                </div>
+
+                <div class="grid-dashboard">
+                    <div class="dash-card" onclick="switchStudentTab('live')">
+                        <i class="fa-solid fa-tower-broadcast card-icon text-danger"></i>
+                        <h3>🎥 Live Classes</h3>
+                        <p>लाइव एवं आगामी कक्षाएं</p>
+                    </div>
+                    <div class="dash-card" onclick="switchStudentTab('courses')">
+                        <i class="fa-solid fa-graduation-cap card-icon text-primary"></i>
+                        <h3>📚 Courses</h3>
+                        <p>संपूर्ण कोर्स एवं सामग्री</p>
+                    </div>
+                    <div class="dash-card" onclick="switchStudentTab('tests')">
+                        <i class="fa-solid fa-list-check card-icon text-success"></i>
+                        <h3>📝 MCQ Test</h3>
+                        <p>विषय एवं परीक्षा वार टेस्ट</p>
+                    </div>
+                    <div class="dash-card" onclick="switchStudentTab('notes')">
+                        <i class="fa-solid fa-file-lines card-icon text-warning"></i>
+                        <h3>📄 Notes / PDF</h3>
+                        <p>महत्वपूर्ण नोट्स एवं अध्ययन सामग्री</p>
+                    </div>
+                    <div class="dash-card" onclick="switchStudentTab('results')">
+                        <i class="fa-solid fa-chart-line card-icon text-info"></i>
+                        <h3>🏆 Test Result</h3>
+                        <p>अपना प्रदर्शन एवं विश्लेषण देखें</p>
+                    </div>
+                    <div class="dash-card" onclick="switchStudentTab('youtube')">
+                        <i class="fa-brands fa-youtube card-icon text-danger"></i>
+                        <h3>▶️ YouTube Classes</h3>
+                        <p>निःशुल्क वीडियो कक्षाएं</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-tests" class="tab-content">
+                <div class="section-header">
+                    <h2>📝 Available Test Series</h2>
+                    <p class="text-muted">अपनी परीक्षा चुनें। (TGT, PGT और LT GRADE के GS Test अलग-अलग रहेंगे)</p>
+                </div>
+
+                <div class="category-filter">
+                    <button class="cat-chip active" onclick="filterTests('ALL')">सभी (ALL)</button>
+                    <button class="cat-chip" onclick="filterTests('UPPSC')">UPPSC / PCS</button>
+                    <button class="cat-chip" onclick="filterTests('UPSSSC')">UPSSSC</button>
+                    <button class="cat-chip" onclick="filterTests('BPSC')">BPSC</button>
+                    <button class="cat-chip" onclick="filterTests('MPSC')">MPSC</button>
+                    <button class="cat-chip" onclick="filterTests('RPSC')">RPSC / RAS</button>
+                    <button class="cat-chip" onclick="filterTests('JPSC')">JPSC / JSSC</button>
+                    <button class="cat-chip" onclick="filterTests('TGT')">TGT</button>
+                    <button class="cat-chip" onclick="filterTests('PGT')">PGT</button>
+                    <button class="cat-chip" onclick="filterTests('LT GRADE')">LT GRADE</button>
+                    <button class="cat-chip" onclick="filterTests('UGC NET')">UGC NET</button>
+                </div>
+
+                <div id="testCardsContainer" class="cards-grid"></div>
+            </div>
+
+            <div id="activeTestEngine" class="test-engine-view hidden">
+                <div class="test-header-bar">
+                    <div>
+                        <h3 id="currentTestTitle">Test Title</h3>
+                        <span id="currentTestMeta" class="badge">Category</span>
+                    </div>
+                    <div class="timer-box">
+                        <i class="fa-regular fa-clock"></i> <span id="timerDisplay">00:00:00</span>
+                    </div>
+                </div>
+
+                <div class="test-body-layout">
+                    <div class="question-container">
+                        <div class="q-meta-info">
+                            <span>प्रश्न संख्या: <strong id="qCurrentIndex">1</strong>/<span id="qTotalCount">0</span></span>
+                            <span>अंक: <strong id="qMarks">1</strong></span>
+                        </div>
+                        <div id="qTextDisplay" class="q-text-box"></div>
+                        <div id="optionsContainer" class="options-group"></div>
+                        <div class="test-navigation-controls">
+                            <button class="btn btn-secondary" onclick="navigateQuestion(-1)"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                            <button class="btn btn-warning" onclick="clearCurrentAnswer()">Clear</button>
+                            <button class="btn btn-primary" onclick="navigateQuestion(1)">Next <i class="fa-solid fa-chevron-right"></i></button>
+                            <button class="btn btn-success pull-right" onclick="confirmSubmitTest()">Submit Test</button>
+                        </div>
+                    </div>
+
+                    <div class="palette-sidebar">
+                        <h4>Question Palette</h4>
+                        <div class="palette-legend">
+                            <span class="legend-item"><span class="dot current"></span> Current</span>
+                            <span class="legend-item"><span class="dot answered"></span> Answered</span>
+                            <span class="legend-item"><span class="dot unanswered"></span> Unanswered</span>
+                        </div>
+                        <div id="paletteGrid" class="palette-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="testResultView" class="result-view hidden">
+                <div class="result-card">
+                    <h2>🏆 Test Performance Summary</h2>
+                    <h3 id="resTestName">Test Title</h3>
+
+                    <div class="result-stats-grid">
+                        <div class="stat-box"><span class="stat-label">Total Score</span><span class="stat-value text-primary" id="resScore">0</span></div>
+                        <div class="stat-box"><span class="stat-label">Accuracy</span><span class="stat-value text-success" id="resAccuracy">0%</span></div>
+                        <div class="stat-box"><span class="stat-label">Attempted</span><span class="stat-value" id="resAttempted">0</span></div>
+                        <div class="stat-box"><span class="stat-label">Correct</span><span class="stat-value text-success" id="resCorrect">0</span></div>
+                        <div class="stat-box"><span class="stat-label">Wrong</span><span class="stat-value text-danger" id="resWrong">0</span></div>
+                        <div class="stat-box"><span class="stat-label">Time Taken</span><span class="stat-value" id="resTimeTaken">0m 0s</span></div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="btn btn-primary" onclick="toggleDetailedExplanations()"><i class="fa-solid fa-eye"></i> View Question Explanations</button>
+                        <button class="btn btn-outline" onclick="switchStudentTab('tests')">Back to Tests</button>
+                    </div>
+
+                    <div id="explanationsSection" class="explanations-list hidden">
+                        <h3>Detailed Solutions & Explanations</h3>
+                        <div id="explanationsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-courses" class="tab-content"><div class="placeholder-box"><h3>📚 Premium Courses</h3><p>कोर्स सूची जल्द आ रही है।</p></div></div>
+            <div id="tab-live" class="tab-content"><div class="placeholder-box"><h3>🎥 Live Classes Schedule</h3><p>लाइव क्लासेस का समय: रात 09:15 बजे।</p></div></div>
+            <div id="tab-notes" class="tab-content"><div class="placeholder-box"><h3>📄 Notes & Study Material</h3><p>PDF नोट्स यहाँ उपलब्ध होंगे।</p></div></div>
+            <div id="tab-results" class="tab-content"><div class="placeholder-box"><h3>🏆 Previous Test History</h3><p>पुराने टेस्ट रिजल्ट यहाँ दिखेंगे।</p></div></div>
+            <div id="tab-youtube" class="tab-content"><div class="placeholder-box"><h3>▶️ YouTube Channel</h3><p>LIVE STUDY ALLAHABAD यूट्यूब चैनल।</p></div></div>
+            <div id="tab-profile" class="tab-content"><div class="placeholder-box"><h3>👤 Student Profile</h3><p>छात्र जानकारी।</p></div></div>
+        </div>
+
+        <div id="adminInterface" class="interface-section">
+            <div class="admin-wrapper">
+                <aside class="admin-sidebar">
+                    <div class="admin-profile">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <h4>Admin Panel</h4>
+                        <small>GS JUNCTION</small>
+                    </div>
+                    <ul class="admin-menu">
+                        <li class="active" onclick="switchAdminTab('dash')"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
+                        <li onclick="switchAdminTab('add-test')"><i class="fa-solid fa-plus-circle"></i> Add Test</li>
+                        <li onclick="switchAdminTab('manage-tests')"><i class="fa-solid fa-tasks"></i> Manage Tests</li>
+                        <li onclick="switchAdminTab('branding')"><i class="fa-solid fa-palette"></i> Branding & Theme</li>
+                    </ul>
+                </aside>
+
+                <div class="admin-content">
+                    <div id="admin-tab-dash" class="admin-tab active">
+                        <h2>📊 Quick Overview</h2>
+                        <div class="grid-dashboard">
+                            <div class="dash-card"><h3>Total Tests</h3><p id="adminTotalTestsCount">0</p></div>
+                            <div class="dash-card"><h3>Published</h3><p id="adminPublishedCount">0</p></div>
+                        </div>
+                    </div>
+
+                    <div id="admin-tab-add-test" class="admin-tab">
+                        <h2>➕ Create / Add New Test</h2>
+                        <form id="createTestForm" onsubmit="handleCreateTest(event)">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Test ID</label><input type="text" id="adminTestId" placeholder="tgt-gs-002" required></div>
+                                <div class="form-group"><label>Test Title</label><input type="text" id="adminTestName" placeholder="TGT GS Test 2" required></div>
+                                <div class="form-group">
+                                    <label>Exam Category</label>
+                                    <select id="adminExamCat" required>
+                                        <option value="TGT">TGT</option>
+                                        <option value="PGT">PGT</option>
+                                        <option value="LT GRADE">LT GRADE</option>
+                                        <option value="UPPSC">UPPSC / PCS</option>
+                                        <option value="UPSSSC">UPSSSC</option>
+                                        <option value="BPSC">BPSC</option>
+                                        <option value="MPSC">MPSC</option>
+                                        <option value="RPSC">RPSC</option>
+                                        <option value="JPSC">JPSC</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>Subject</label><input type="text" id="adminSubject" value="General Studies" required></div>
+                                <div class="form-group"><label>Time Per Question (Sec)</label><input type="number" id="adminTimePerQ" value="45" required></div>
+                                <div class="form-group"><label>Marks Per Question</label><input type="number" id="adminMarks" value="1" required></div>
+                                <div class="form-group"><label>TXT File Path</label><input type="text" id="adminFilePath" placeholder="tests/tgt-gs-002.txt" required></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Publish Test</button>
+                        </form>
+                    </div>
+
+                    <div id="admin-tab-manage-tests" class="admin-tab">
+                        <h2>📝 Test Repository</h2>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>ID</th><th>Title</th><th>Exam</th><th>Subject</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="adminTestTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="admin-tab-branding" class="admin-tab">
+                        <h2>🎨 Dynamic Branding & Style</h2>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Brand Header Title</label><input type="text" id="brandTitleInput" value="GS JUNCTION PRAYAGRAJ"></div>
+                            <div class="form-group"><label>Primary Theme Color</label><input type="color" id="primaryColorInput" value="#1a365d"></div>
+                            <div class="form-group"><label>Accent Color</label><input type="color" id="accentColorInput" value="#d69e2e"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveBrandingSettings()" style="margin-top: 15px;">Save Branding</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>GS JUNCTION PRAYAGRAJ &copy; 2026</p>
+        <p class="powered-by">POWERED BY LIVE STUDY ALLAHABAD</p>
+    </footer>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js')
+            .then(reg => console.log('Service Worker Registered!'))
+            .catch(err => console.log('Service Worker Failed:', err));
+        });
+      }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
